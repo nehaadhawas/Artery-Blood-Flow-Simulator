@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artery Blood Flow Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <p class="eyebrow">COMPUTER VISION • MEDICAL SIMULATION</p>
+      <h1>Artery Blood Flow Simulator</h1>
+      <p>Explore how artery narrowing affects blood circulation.</p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Live Artery Simulation</h2>
+          <p>Watch the blood cells move through the artery.</p>
+        </div>
+        <span class="status" id="status">Normal flow</span>
+      </div>
+
+      <canvas id="arteryCanvas" aria-label="Animated 2D artery simulation"></canvas>
+
+      <div class="legend">
+        <span><i class="dot red"></i> Red blood cells</span>
+        <span><i class="dot pink"></i> Artery wall</span>
+      </div>
+    </section>
+
+    <section class="panel controls">
+      <h2>Control the blockage</h2>
+
+      <div class="slider-heading">
+        <label for="blockage">Artery diameter reduction</label>
+        <strong id="blockageValue">0%</strong>
+      </div>
+
+      <input type="range" id="blockage" min="0" max="90" step="5" value="0">
+
+      <div class="range-labels">
+        <span>0% — Normal</span>
+        <span>90% — Severe</span>
+      </div>
+
+      <div class="preset-buttons">
+        <button data-value="0">Normal</button>
+        <button data-value="30">30%</button>
+        <button data-value="60">60%</button>
+        <button data-value="90">90%</button>
+        <button id="resetButton" class="secondary">Reset</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <span>Estimated relative blood flow</span>
+          <strong id="flowValue">100%</strong>
+        </div>
+        <div class="metric">
+          <span>Estimated flow reduction</span>
+          <strong id="reductionValue">0%</strong>
+        </div>
+      </div>
+
+      <div class="flow-track">
+        <div class="track-heading">
+          <span>Relative flow indicator</span>
+          <span id="flowLabel">100 / 100</span>
+        </div>
+        <div class="track">
+          <div id="flowBar"></div>
+        </div>
+      </div>
+
+      <div class="explanation">
+        <h3 id="resultTitle">Normal artery</h3>
+        <p id="resultText">
+          The artery is open in this model and relative blood flow is set to 100%.
+        </p>
+      </div>
+    </section>
+
+    <section class="panel cv-panel">
+      <h2>Computer Vision: Step-by-Step Image Processing</h2>
+      <p class="muted">
+        Upload a vessel image and watch OpenCV process it through four stages.
+        Each output below is generated from your uploaded image.
+      </p>
+
+      <label class="upload-label" for="imageUpload">Choose a vessel image</label>
+      <input type="file" id="imageUpload" accept="image/*">
+
+      <p id="cvStatus" class="muted" aria-live="polite">
+        Loading OpenCV.js...
+      </p>
+
+      <div class="cv-progress">
+        <div class="cv-progress-track">
+          <div id="cvProgressBar"></div>
+        </div>
+        <span id="cvStepLabel">Step 0 of 4</span>
+      </div>
+
+      <div class="cv-stage-container">
+
+        <article class="cv-stage active" data-stage="0">
+          <span class="stage-number">STEP 1</span>
+          <h3>Original Image</h3>
+          <p>Original uploaded vessel image.</p>
+          <div class="stage-image">
+            <img id="originalImage" alt="Original uploaded vessel image">
+          </div>
+        </article>
+
+        <article class="cv-stage" data-stage="1">
+          <span class="stage-number">STEP 2</span>
+          <h3>Grayscale Conversion</h3>
+          <p>Converts the image into shades of grey.</p>
+          <div class="stage-image">
+            <canvas id="grayCanvas"></canvas>
+          </div>
+        </article>
+
+        <article class="cv-stage" data-stage="2">
+          <span class="stage-number">STEP 3</span>
+          <h3>Gaussian Blur</h3>
+          <p>Reduces small variations and image noise.</p>
+          <div class="stage-image">
+            <canvas id="blurCanvas"></canvas>
+          </div>
+        </article>
+
+        <article class="cv-stage" data-stage="3">
+          <span class="stage-number">STEP 4</span>
+          <h3>Canny Edge Detection</h3>
+          <p>Highlights boundaries and edges in the image.</p>
+          <div class="stage-image">
+            <canvas id="edgeCanvas"></canvas>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="cv-controls">
+        <button id="cvPrev" class="secondary" disabled>← Previous</button>
+        <button id="cvNext" disabled>Next →</button>
+        <button id="cvPlay" disabled>▶ Play All</button>
+      </div>
+
+      <p class="cv-note">
+        The highlighted stage changes as you move through the processing pipeline.
+        All four outputs remain available for comparison.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>How does the simulation work?</h2>
+      <p>
+        The simulator treats blockage as a reduction in artery diameter.
+        It uses a simplified Poiseuille relationship to estimate relative flow.
+      </p>
+      <div class="formula">
+        Relative flow = (1 − blockage fraction)<sup>4</sup> × 100%
+      </div>
+      <p class="muted">
+        This is an educational model, not a medical diagnostic tool.
+        Real blood circulation is more complex.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Student Computer Vision Project | Educational use only</p>
+  </footer>
+
+  <script>
+    var Module = {
+      onRuntimeInitialized: function () {
+        window.openCVReady = true;
+        document.dispatchEvent(new Event("opencv-ready"));
+      }
+    };
+  </script>
+
+  <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
